@@ -528,7 +528,7 @@
           <li>Consider following up with a clinician if your result is High or Strong.</li>
         </ul>
         <div class="iframe-wrap">
-          <iframe style="border: 0;" loading="eager" src="https://embed.figma.com/slides/IvNu8x6PHucn7KwIhbfoEY/ASD-Prediction?node-id=1-545&embed-host=share" allowfullscreen></iframe>
+          <iframe style="border: 0;" loading="lazy" src="https://embed.figma.com/slides/IvNu8x6PHucn7KwIhbfoEY/ASD-Prediction?node-id=1-545&embed-host=share" allowfullscreen></iframe>
         </div>
       </section>
 
@@ -968,17 +968,6 @@
       // Initialize tab from hash
       if (location.hash === '#overview') setTab('overview');
       else if (location.hash === '#analysis') setTab('analysis');
-
-      // Preload slides iframe on first load to ensure it's ready when switching tabs
-      (function preloadSlides(){
-        const ifr = document.querySelector('#tab-overview iframe');
-        if (!ifr) return;
-        try { ifr.setAttribute('loading','eager'); } catch {}
-        if (ifr.src) {
-          // Reassigning the same src can encourage the browser to fetch even if hidden
-          const s = ifr.src; ifr.src = s;
-        }
-      })();
 
       // Preload analysis iframe too
       (function preloadAnalysis(){
