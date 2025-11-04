@@ -1,0 +1,15 @@
+{
+  "feature_names": [
+    "a1_score","a2_score","a3_score","a4_score","a5_score",
+    "a6_score","a7_score","a8_score","a9_score","a10_score",
+    "age","gender","jundice","austim","used_app_before","result"
+  ],
+  "coef": [
+    1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,
+    0.01,0.2,0.1,0.1,0.0,0.05
+  ],
+  "bias": -8.4,
+  "scaler": { "with_mean": false, "with_std": false }
+}
+
+

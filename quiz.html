@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Adult Autism Screening Quiz (Non‑diagnostic)</title>
+  <style>
+    :root { --accent:#2563eb; --bg:#f8fafc; --card:#ffffff; --text:#0f172a; --muted:#475569; }
+    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    header{padding:32px 16px;background:linear-gradient(180deg,#e2e8f0,transparent)}
+    .container{max-width:980px;margin:0 auto;padding:16px}
+    h1{margin:0 0 8px;font-weight:700;letter-spacing:.2px}
+    .muted{color:var(--muted)}
+    .card{background:var(--card);border:1px solid #e5e7eb;border-radius:12px;padding:20px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+    .grid{display:grid;gap:16px}
+    @media(min-width:800px){.grid-2{grid-template-columns:1fr 1fr}}
+    label{display:block;font-weight:600;margin-bottom:6px}
+    input[type="number"], input[type="text"], select{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}
+    .row{display:flex;gap:16px;flex-wrap:wrap}
+    .chip{display:inline-flex;align-items:center;gap:8px;border:1px solid #cbd5e1;border-radius:999px;padding:8px 12px;background:#fff;cursor:pointer}
+    .section-title{margin:16px 0 8px;font-size:18px}
+    .btn{display:inline-flex;gap:8px;align-items:center;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 14px;cursor:pointer}
+    .btn.secondary{background:#0f172a}
+    .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+    .result{padding:12px 14px;border-radius:10px;border:1px solid #cbd5e1;background:#fff}
+    footer{padding:24px 16px;color:var(--muted)}
+    small{color:var(--muted)}
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid #cbd5e1;font-size:12px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Adult Autism Screening Quiz</h1>
+      <p class="muted">Neutral, non‑diagnostic questionnaire inspired by the ASD screening dataset (704 adult records). This tool provides a screening score only and is not medical advice or diagnosis.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card" aria-labelledby="about">
+      <h2 id="about" class="section-title">About</h2>
+      <p>Autism spectrum disorder (ASD) involves a broad range of characteristics in social communication and behavior. Research suggests a combination of genetic and environmental factors may be involved. Early, high‑quality support can improve outcomes.</p>
+      <p>The accompanying dataset contains >700 self‑reports with an indicator of diagnosed ASD, enabling statistical models to estimate the likelihood that screening responses align with ASD. Any screening should be interpreted carefully and followed by professional evaluation as needed.</p>
+    </section>
+
+    <section class="card" aria-labelledby="quiz">
+      <h2 id="quiz" class="section-title">Screening Questionnaire</h2>
+      <p class="muted">Please answer all items. Questions A1–A10 are simplified placeholders representing binary screening items similar to AQ‑10. “Yes” adds 1 point.</p>
+
+      <div class="grid grid-2" id="form">
+        <div>
+          <label for="age">Age (years)</label>
+          <input id="age" type="number" min="18" step="1" placeholder="e.g., 29" />
+        </div>
+        <div>
+          <label for="gender">Gender</label>
+          <select id="gender">
+            <option value="">Select…</option>
+            <option value="m">Male</option>
+            <option value="f">Female</option>
+            <option value="other">Other / Prefer not to say</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="ethnicity">Ethnicity</label>
+          <select id="ethnicity">
+            <option value="">Select…</option>
+            <option>white-european</option>
+            <option>latino</option>
+            <option>asian</option>
+            <option>black</option>
+            <option>middle eastern</option>
+            <option>others</option>
+            <option>?</option>
+          </select>
+        </div>
+        <div>
+          <label for="country">Country of Residence</label>
+          <input id="country" type="text" placeholder="e.g., United States" />
+        </div>
+
+        <div>
+          <label>Jaundice at Birth</label>
+          <div class="row">
+            <label class="chip"><input type="radio" name="jundice" value="1"> Yes</label>
+            <label class="chip"><input type="radio" name="jundice" value="0"> No</label>
+          </div>
+        </div>
+        <div>
+          <label>Autism in Family</label>
+          <div class="row">
+            <label class="chip"><input type="radio" name="austim" value="1"> Yes</label>
+            <label class="chip"><input type="radio" name="austim" value="0"> No</label>
+          </div>
+        </div>
+
+        <div>
+          <label>Used App Before</label>
+          <div class="row">
+            <label class="chip"><input type="radio" name="used_app_before" value="1"> Yes</label>
+            <label class="chip"><input type="radio" name="used_app_before" value="0"> No</label>
+          </div>
+        </div>
+        <div>
+          <label for="relation">Relation</label>
+          <select id="relation">
+            <option value="">Select…</option>
+            <option>self</option>
+            <option>parent</option>
+            <option>relative</option>
+            <option>health care professional</option>
+            <option>others</option>
+            <option>?</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="result">Self‑reported score (0–10)</label>
+          <input id="result" type="number" min="0" max="10" step="1" placeholder="e.g., 6" />
+          <small class="muted">Optional—maps to the “result” column in the dataset.</small>
+        </div>
+        <div>
+          <label>Age group</label>
+          <span class="badge">18 and more</span>
+        </div>
+      </div>
+
+      <hr style="margin:16px 0;border:none;border-top:1px solid #e5e7eb" />
+
+      <h3 class="section-title">A1–A10 Screening Items</h3>
+      <div class="grid grid-2" id="aq">
+        <!-- Ten binary items -->
+        <div>
+          <label>1. I often notice small sounds when others do not.</label>
+          <div class="row">
+            <label class="chip"><input type="radio" name="a1" value="1"> Yes</label>
+            <label class="chip"><input type="radio" name="a1" value="0"> No</label>
+          </div>
+        </div>
+        <div>
+          <label>2. When I’m reading a story, I find it difficult to work out the characters’ intentions.</label>
+          <div class="row">
+            <label class="chip"><input type="radio" name="a2" value="1"> Yes</label>
+            <label class="chip"><input type="radio" name="a2" value="0"> No</label>
+          </div>
+        </div>
+        <div>
+          <label>3. I find it easy to "read between the lines" when someone is talking to me.</label>
+          <div class="row">
+            <label class="chip"><input type="radio" name="a3" value="0"> Agree</label>
+            <label class="chip"><input type="radio" name="a3" value="1"> Disagree</label>
+          </div>
+        </div>
+        <div>
+          <label>4. I usually concentrate more on the whole picture, rather than the small details.</label>
+          <div class="row">
+            <label class="chip"><input type="radio" name="a4" value="0"> Agree</label>
+            <label class="chip"><input type="radio" name="a4" value="1"> Disagree</label>
+          </div>
+        </div>
+        <div>
+          <label>5. I know how to tell if someone listening to me is getting bored.</label>
+          <div class="row">
+            <label class="chip"><input type="radio" name="a5" value="0"> Agree</label>
+            <label class="chip"><input type="radio" name="a5" value="1"> Disagree</label>
+          </div>
+        </div>
+        <div>
+          <label>6. I find it easy to do more than one thing at once.</label>
+          <div class="row">
+            <label class="chip"><input type="radio" name="a6" value="0"> Agree</label>
+            <label class="chip"><input type="radio" name="a6" value="1"> Disagree</label>
+          </div>
+        </div>
+        <div>
+          <label>7. I find it easy to work out what someone is thinking or feeling just by looking at their face.</label>
+          <div class="row">
+            <label class="chip"><input type="radio" name="a7" value="0"> Agree</label>
+            <label class="chip"><input type="radio" name="a7" value="1"> Disagree</label>
+          </div>
+        </div>
+        <div>
+          <label>8. If there is an interruption, I can switch back to what I was doing very quickly.</label>
+          <div class="row">
+            <label class="chip"><input type="radio" name="a8" value="0"> Agree</label>
+            <label class="chip"><input type="radio" name="a8" value="1"> Disagree</label>
+          </div>
+        </div>
+        <div>
+          <label>9. I like to collect information about categories of things.</label>
+          <div class="row">
+            <label class="chip"><input type="radio" name="a9" value="1"> Yes</label>
+            <label class="chip"><input type="radio" name="a9" value="0"> No</label>
+          </div>
+        </div>
+        <div>
+          <label>10. I find it difficult to work out people’s intentions.</label>
+          <div class="row">
+            <label class="chip"><input type="radio" name="a10" value="1"> Yes</label>
+            <label class="chip"><input type="radio" name="a10" value="0"> No</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:16px">
+        <button class="btn" id="btnScore">Calculate Screening Score</button>
+        <button class="btn ghost" id="btnReset" type="button">Reset</button>
+        <button class="btn secondary" id="btnDownload" type="button">Download as CSV</button>
+      </div>
+
+      <div class="result" id="resultBox" style="margin-top:12px;display:none"></div>
+      <small>Threshold guidance (illustrative): total A1–A10 ≥ 7 suggests elevated screening score. If a local linear model file is available, we also show a probability estimate. This is not a diagnosis.</small>
+    </section>
+
+    <section class="card" aria-labelledby="more">
+      <h2 id="more" class="section-title">More Information</h2>
+      <ul>
+        <li>Dataset citation: Tabtah, F. (2017). Autism Spectrum Disorder Screening: Machine Learning Adaptation and DSM-5 Fulfillment.</li>
+        <li>Use responsibly; consider sampling bias, label noise, and sensitive attributes.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="container">
+    <p class="muted">Photo: Nathan Anderson (Unsplash). Icons: Smashicons (flaticon). Public domain / referenced assets as credited. This page is for educational screening only.</p>
+  </footer>
+
+  <script>
+    function valRB(name){
+      const el = document.querySelector('input[name="'+name+'"]:checked');
+      return el ? Number(el.value) : null;
+    }
+    function reqRadio(names){
+      for(const n of names){ if(valRB(n)===null) return false; }
+      return true;
+    }
+    function snake(s){ return s.toLowerCase().replace(/\s+/g,'_'); }
+
+    const btnScore = document.getElementById('btnScore');
+    const btnReset = document.getElementById('btnReset');
+    const btnDownload = document.getElementById('btnDownload');
+    const box = document.getElementById('resultBox');
+
+    // Optional model artifacts loader (expects model_linear.json in the same folder)
+    // Also includes a reasonable default linear model fallback based on total score
+    const DEFAULT_MODEL = {
+      feature_names: [
+        'a1_score','a2_score','a3_score','a4_score','a5_score',
+        'a6_score','a7_score','a8_score','a9_score','a10_score',
+        'age','gender','jundice','austim','used_app_before','result'
+      ],
+      // Emphasize A1–A10, light taps for demographics; bias ~ -1.2*7 to mimic threshold ~7
+      coef: [1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2,1.2, 0.01,0.2,0.1,0.1,0.0,0.05],
+      bias: -8.4,
+      scaler: { with_mean: false, with_std: false }
+    };
+    let __model_artifacts = null; // cache
+    async function ensureModel(){
+      if(__model_artifacts!==null) return __model_artifacts;
+      try{
+        const res = await fetch('model_linear.json', {cache:'no-store'});
+        if(!res.ok) return null;
+        const json = await res.json();
+        __model_artifacts = json;
+        return json;
+      }catch(e){ return null; }
+    }
+    function sigmoid(z){ return 1/(1+Math.exp(-z)); }
+    function numberOrZero(v){ const x = Number(v); return isFinite(x)?x:0; }
+    function oneHotMatch(prefix, value, feat){
+      // e.g., feat='ethnicity_white-european', prefix='ethnicity_', value='white-european'
+      if(!feat.startsWith(prefix)) return null;
+      const key = feat.slice(prefix.length);
+      return (String(value||'').toLowerCase()===String(key||'').toLowerCase()) ? 1 : 0;
+    }
+    function buildFeatureVector(row, featureNames, scaler){
+      const totalScore = (
+        (row.a1_score||0)+(row.a2_score||0)+(row.a3_score||0)+(row.a4_score||0)+
+        (row.a5_score||0)+(row.a6_score||0)+(row.a7_score||0)+(row.a8_score||0)+
+        (row.a9_score||0)+(row.a10_score||0)
+      );
+      const x = featureNames.map((f)=>{
+        // Direct matches
+        if(f in row) return numberOrZero(row[f]);
+        // Common base features
+        if(f==='total_score') return totalScore;
+        if(f==='gender'){
+          const g = String(row.gender||'').toLowerCase();
+          return g==='m'?1 : (g==='f'?0 : 0);
+        }
+        if(f==='jundice') return numberOrZero(row.jundice);
+        if(f==='austim') return numberOrZero(row.austim);
+        if(f==='used_app_before') return numberOrZero(row.used_app_before);
+        if(f==='age') return numberOrZero(row.age);
+        if(f==='result') return numberOrZero(row.result);
+        // One-hots we can infer
+        const oh = (
+          oneHotMatch('ethnicity_', row.ethnicity, f) ??
+          oneHotMatch('country_of_res_', row.country_of_res, f) ??
+          oneHotMatch('age_desc_', row.age_desc, f) ??
+          oneHotMatch('relation_', row.relation, f)
+        );
+        if(oh!==null) return oh;
+        // Unknown feature: default 0
+        return 0;
+      });
+      // Scale if scaler provided
+      if(scaler && scaler.with_std && Array.isArray(scaler.scale) && Array.isArray(scaler.mean)){
+        return x.map((xi, i)=>{
+          const mu = numberOrZero(scaler.mean[i]);
+          const s = numberOrZero(scaler.scale[i]) || 1;
+          return (xi - mu) / s;
+        });
+      }
+      return x;
+    }
+
+    btnScore.addEventListener('click', (e)=>{
+      e.preventDefault();
+      // Validate A1..A10
+      const items = ['a1','a2','a3','a4','a5','a6','a7','a8','a9','a10'];
+      if(!reqRadio(items)){
+        box.style.display='block';
+        box.innerHTML = '<b>Please answer all A1–A10 items.</b>';
+        return;
+      }
+      // Sum
+      let total = 0; items.forEach(n=> total += valRB(n));
+      const threshold = 7;
+      const category = (total>=threshold) ? 'Elevated screening score' : 'Lower screening score';
+      const msg = `Total A1–A10 = ${total} / 10 → ${category}.`;
+      // Collect demographic flags
+      const j = valRB('jundice');
+      const a = valRB('austim');
+      const u = valRB('used_app_before');
+      const age = Number(document.getElementById('age').value || '');
+      const gender = document.getElementById('gender').value;
+      const ethnicity = document.getElementById('ethnicity').value;
+      const country = document.getElementById('country').value;
+      const relation = document.getElementById('relation').value;
+      const result = document.getElementById('result').value;
+      box.style.display='block';
+      box.innerHTML = `
+        <div><b>Screening result</b>: ${msg}</div>
+        <div id="modelLine" class="muted" style="margin-top:6px">Attempting model estimate…</div>
+        <div class="muted" style="margin-top:6px">This is a non‑diagnostic screening tool. If you have concerns, consider consulting a qualified professional.</div>
+      `;
+      // Store for CSV download
+      window.__quiz_last = {
+        a1_score: valRB('a1'), a2_score: valRB('a2'), a3_score: valRB('a3'), a4_score: valRB('a4'), a5_score: valRB('a5'),
+        a6_score: valRB('a6'), a7_score: valRB('a7'), a8_score: valRB('a8'), a9_score: valRB('a9'), a10_score: valRB('a10'),
+        age: isNaN(age)?'':age, gender: gender||'', ethnicity: ethnicity||'', jundice: j===null?'':j, austim: a===null?'':a,
+        country_of_res: country||'', used_app_before: u===null?'':u, result: result||'', age_desc: '18 and more', relation: relation||'',
+        class_asd: (total>=threshold?1:0)
+      };
+
+      // Try model-based probability (if model_linear.json present)
+      ensureModel().then((art)=>{
+        const lineEl = document.getElementById('modelLine');
+        const artEff = (art && Array.isArray(art.feature_names) && Array.isArray(art.coef) && art.coef.length===art.feature_names.length)
+          ? art
+          : DEFAULT_MODEL;
+        const feats = artEff.feature_names;
+        const coef = artEff.coef;
+        const bias = Number(artEff.bias||0);
+        const scaler = artEff.scaler||null;
+        const x = buildFeatureVector(window.__quiz_last, feats, scaler);
+        let z = bias;
+        for(let i=0;i<coef.length;i++){ z += Number(coef[i]||0) * Number(x[i]||0); }
+        const p = sigmoid(z);
+        const pct = Math.round(p*1000)/10; // 0.1% precision
+        if(lineEl) lineEl.innerHTML = `<b>Model estimate</b>: ${pct}% probability of ASD label (linear model)`;
+      });
+    });
+
+    btnReset.addEventListener('click', ()=>{
+      document.querySelectorAll('input[type="radio"]').forEach(i=> i.checked=false);
+      document.querySelectorAll('input[type="number"],input[type="text"]').forEach(i=> i.value='');
+      document.querySelectorAll('select').forEach(s=> s.value='');
+      box.style.display='none';
+      box.innerHTML='';
+      window.__quiz_last = null;
+    });
+
+    btnDownload.addEventListener('click', ()=>{
+      const row = window.__quiz_last;
+      if(!row){
+        alert('Please calculate the screening score first.');
+        return;
+      }
+      const headers = [
+        'a1_score','a2_score','a3_score','a4_score','a5_score','a6_score','a7_score','a8_score','a9_score','a10_score',
+        'age','gender','ethnicity','jundice','austim','country_of_res','used_app_before','result','age_desc','relation','class_asd'
+      ];
+      const csv = headers.join(',')+'\n'+headers.map(h=> row[h]).join(',')+'\n';
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'adult_autism_screening_response.csv';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    });
+  </script>
+</body>
+</html>
+
+
