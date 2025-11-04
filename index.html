@@ -4,28 +4,68 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Adult Autism Screening Quiz (Non‑diagnostic)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    :root { --accent:#2563eb; --bg:#f8fafc; --card:#ffffff; --text:#0f172a; --muted:#475569; }
-    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
-    header{padding:32px 16px;background:linear-gradient(180deg,#e2e8f0,transparent)}
+    :root { --accent:#1877F2; --accent-2:#1877F2; --bg:#E7F3FF; --card:#ffffff; --text:#0f172a; --muted:#475569; }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Inter', system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      background: var(--bg);
+      color:var(--text)
+    }
+    header{
+      padding:40px 16px;
+      background: var(--bg);
+      border-bottom:1px solid #e5e7eb;
+    }
     .container{max-width:980px;margin:0 auto;padding:16px}
     h1{margin:0 0 8px;font-weight:700;letter-spacing:.2px}
     .muted{color:var(--muted)}
-    .card{background:var(--card);border:1px solid #e5e7eb;border-radius:12px;padding:20px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+    .card{
+      background:var(--card);
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      padding:22px;
+      box-shadow:0 6px 20px rgba(15,23,42,.06);
+      transition: box-shadow .2s ease, transform .2s ease;
+    }
+    .card:hover{ box-shadow:0 10px 28px rgba(15,23,42,.1); transform: translateY(-1px); }
     .grid{display:grid;gap:16px}
     @media(min-width:800px){.grid-2{grid-template-columns:1fr 1fr}}
     label{display:block;font-weight:600;margin-bottom:6px}
-    input[type="number"], input[type="text"], select{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}
-    .row{display:flex;gap:16px;flex-wrap:wrap}
-    .chip{display:inline-flex;align-items:center;gap:8px;border:1px solid #cbd5e1;border-radius:999px;padding:8px 12px;background:#fff;cursor:pointer}
-    .section-title{margin:16px 0 8px;font-size:18px}
-    .btn{display:inline-flex;gap:8px;align-items:center;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 14px;cursor:pointer}
-    .btn.secondary{background:#0f172a}
+    input[type="number"], input[type="text"], select{
+      width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;
+      transition:border-color .15s ease, box-shadow .15s ease;
+    }
+    input[type="number"]:focus, input[type="text"]:focus, select:focus{
+      outline:none;border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,99,235,.12)
+    }
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .chip{
+      position:relative;
+      display:inline-flex;align-items:center;gap:8px;
+      border:1px solid #cbd5e1;border-radius:999px;padding:8px 12px;background:#fff;cursor:pointer;
+      transition: all .15s ease;
+      user-select:none;
+    }
+    .chip:hover{ border-color:#94a3b8; }
+    .chip input{ position:absolute; opacity:0; width:0; height:0; }
+    .chip:has(input:checked){ background: var(--accent); color:#fff; border-color:transparent; box-shadow:0 4px 14px rgba(24,119,242,.2) }
+    .section-title{margin:4px 0 12px;font-size:18px}
+    .btn{display:inline-flex;gap:8px;align-items:center;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:10px 16px;cursor:pointer;transition:transform .08s ease, box-shadow .15s ease}
+    .btn:hover{ box-shadow:0 8px 20px rgba(24,119,242,.25) }
+    .btn:active{ transform: translateY(1px) }
+    .btn.secondary{background: var(--accent)}
+    .btn.secondary:hover{ box-shadow:0 8px 20px rgba(24,119,242,.25) }
     .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
-    .result{padding:12px 14px;border-radius:10px;border:1px solid #cbd5e1;background:#fff}
-    footer{padding:24px 16px;color:var(--muted)}
+    .btn.ghost:hover{ background:rgba(24,119,242,.06) }
+    .result{padding:14px 16px;border-radius:12px;border:1px solid #e2e8f0;background:#ffffff}
+    footer{padding:28px 16px;color:var(--muted)}
     small{color:var(--muted)}
-    .badge{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid #cbd5e1;font-size:12px}
+    .badge{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid #cbd5e1;font-size:12px;background:#fff}
   </style>
 </head>
 <body>
@@ -218,7 +258,7 @@
   </main>
 
   <footer class="container">
-    <p class="muted">This is created for educational purposes only. Please consult a professional for any medical advice. Rohan Malhotra, rohanm.org</p>
+    <p class="muted">This is created for educational purposes only. Please consult a professional for any medical advice. Rohan Malhotra, <a href="https://rohanm.org" target="_blank" rel="noopener">rohanm.org</a></p>
   </footer>
 
   <script>
