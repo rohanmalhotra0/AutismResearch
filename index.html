@@ -66,6 +66,11 @@
     footer{padding:28px 16px;color:var(--muted)}
     small{color:var(--muted)}
     .badge{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid #cbd5e1;font-size:12px;background:#fff}
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-weight:600;font-size:12px}
+    .pill.low{background:#E0F2FE;color:#075985}
+    .pill.moderate{background:#BFDBFE;color:#1E3A8A}
+    .pill.high{background:#93C5FD;color:#1D4ED8}
+    .pill.strong{background:#60A5FA;color:#ffffff}
   </style>
 </head>
 <body>
@@ -405,7 +410,11 @@
         for(let i=0;i<coef.length;i++){ z += Number(coef[i]||0) * Number(x[i]||0); }
         const p = sigmoid(z);
         const pct = Math.round(p*1000)/10; // 0.1% precision
-        if(lineEl) lineEl.innerHTML = `<b>Model estimate</b>: ${pct}% probability of ASD label (linear model)`;
+        let label = 'Lower likelihood', cls='low';
+        if(p>=0.8){ label='Strong likelihood'; cls='strong'; }
+        else if(p>=0.6){ label='High likelihood'; cls='high'; }
+        else if(p>=0.4){ label='Moderate likelihood'; cls='moderate'; }
+        if(lineEl) lineEl.innerHTML = `<b>Predictive model</b>: ${pct}% — <span class="pill ${cls}">${label}</span>`;
       });
     });
 
