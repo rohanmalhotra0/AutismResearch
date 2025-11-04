@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Autism Screening – Analysis Slides</title>
+    <meta name="theme-color" content="#1877F2">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+    <link rel="manifest" href="./site.webmanifest">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Reveal.js via CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.5/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.5/dist/theme/white.css" id="theme">
+    <style>
+      :root {
+        --primary: #1877F2;
+      }
+      body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+      .reveal h1, .reveal h2, .reveal h3 { color: #0F172A; }
+      .reveal p, .reveal li { color: #334155; }
+      .brand { position: fixed; top: 8px; left: 12px; font-size: 12px; color: #475569; z-index: 20; }
+      .credit { position: fixed; bottom: 8px; left: 12px; font-size: 12px; color: #64748B; z-index: 20; }
+      .tag { display: inline-block; padding: 6px 10px; border-radius: 999px; background: rgba(24,119,242,0.1); color: var(--primary); font-weight: 700; font-size: 12px; }
+      img.slide-img { max-width: 1000px; width: 100%; height: auto; border: 1px solid rgba(15,23,42,0.08); border-radius: 10px; }
+      .muted { color: #64748B; font-size: 16px; }
+    </style>
+  </head>
+  <body>
+    <div class="brand">Autism Screening – Analysis Slides</div>
+    <div class="credit">Created by Rohan Malhotra for NYU BAC · Educational, not medical advice</div>
+
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <h2>Autism Screening – Analysis</h2>
+          <p class="muted">Concise, neutral results from a self‑reported screening dataset. Statistical indicators only.</p>
+          <p><span class="tag">Executive Overview</span></p>
+          <ul>
+            <li>Preprocessing: cleaned columns, mapped categoricals, imputed numerics, one‑hot encoded.</li>
+            <li>Models: Logistic (PyTorch) and RandomForest with grid search.</li>
+            <li>Evaluation: Accuracy, Precision, Recall, F1, ROC‑AUC, PR‑AUC.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Model Summary</h2>
+          <p class="muted">Baseline results with a caution on RandomForest overfitting.</p>
+          <ul>
+            <li><b>Logistic (PyTorch):</b> Accuracy ≈ 0.88, ROC‑AUC ≈ 0.94 on held‑out test.</li>
+            <li><b>RandomForest:</b> Reported perfect metrics previously → indicative of overfitting; will be re‑estimated with cross‑validation and stricter regularization.</li>
+          </ul>
+          <p>Interpretation: Prefer ROC‑AUC for ranking quality; consider F1 when balancing precision and recall.</p>
+        </section>
+
+        <section>
+          <h2>Overfitting & Fix Plan (RF)</h2>
+          <p class="muted">We will reconfigure RandomForest to reduce variance and report more realistic metrics.</p>
+          <ul>
+            <li>Hyperparameters: <code>max_depth ∈ {8,12,16}</code>, <code>min_samples_leaf ∈ {3,5,8}</code>, <code>max_features='sqrt'</code>, <code>n_estimators ∈ {200,400}</code>, <code>class_weight='balanced'</code>.</li>
+            <li>Validation: 5‑fold Stratified CV on the training set; report mean ± std, then evaluate once on held‑out test.</li>
+            <li>Outputs to update: Model summary table, confusion matrix, and feature importance will reflect re‑trained RF.</li>
+          </ul>
+          <p class="muted">Note: Perfect accuracy in screening data is a red flag; expect performance to drop after proper validation.</p>
+        </section>
+
+        <section>
+          <h2>Class Balance</h2>
+          <p class="muted">Counts of ASD vs non‑ASD labels; imbalance can bias metrics.</p>
+          <img class="slide-img" src="figures/eda_class_balance.png" alt="Class Balance" />
+          <p>Implication: If one class dominates, prioritize recall/PR‑AUC and consider resampling or class weights.</p>
+        </section>
+
+        <section>
+          <h2>Correlation Heatmap</h2>
+          <p class="muted">Pairwise correlations among numeric features to spot redundancy and leakage risks.</p>
+          <img class="slide-img" src="figures/eda_corr_heatmap.png" alt="Correlation Heatmap" />
+          <p>Note: Strong feature correlations can inflate variance; tree models are more robust than linear models here.</p>
+        </section>
+
+        <section>
+          <h2>Age by Class</h2>
+          <p class="muted">Distributional differences in age stratified by ASD label.</p>
+          <img class="slide-img" src="figures/hist_age_by_class.png" alt="Age by Class" />
+          <p>Look for systematic shifts; non‑overlap suggests predictive signal, but control for confounders.</p>
+        </section>
+
+        <section>
+          <h2>Result (A1–A10 total) by Class</h2>
+          <p class="muted">Self‑report score distributions across classes.</p>
+          <img class="slide-img" src="figures/hist_result_by_class.png" alt="Result by Class" />
+          <p>Higher totals tend to increase ASD likelihood in linear models; calibration is key.</p>
+        </section>
+
+        <section>
+          <h2>Key Categorical Signals</h2>
+          <p class="muted">Counts by class for selected binary flags.</p>
+          <div style="display:grid; gap: 12px;">
+            <img class="slide-img" src="figures/count_used_app_before_by_class.png" alt="Used App Before by Class" />
+            <img class="slide-img" src="figures/count_austim_by_class.png" alt="Austim Flag by Class" />
+            <img class="slide-img" src="figures/count_jundice_by_class.png" alt="Jaundice Flag by Class" />
+          </div>
+          <p>Interpret cautiously: associations do not imply causation; demographic factors may confound.</p>
+        </section>
+
+        <section>
+          <h2>Training Dynamics</h2>
+          <p class="muted">Loss curves for the PyTorch logistic model.</p>
+          <img class="slide-img" src="figures/torch_logreg_training_curve.png" alt="Torch LogReg Training" />
+          <p>Early stopping stabilizes generalization; plateaus suggest near‑optimal learning rate and capacity.</p>
+        </section>
+
+        <section>
+          <h2>Confusion Matrix (Logistic)</h2>
+          <p class="muted">Predicted vs true labels; diagonals are correct classifications.</p>
+          <img class="slide-img" src="figures/cm_TorchLogReg.png" alt="Confusion Matrix - TorchLogReg" />
+          <p>Balance false positives/negatives depending on screening priorities (e.g., favor recall in early screening).</p>
+        </section>
+
+        <section>
+          <h2>Top Feature Importances (RF)</h2>
+          <p class="muted">Relative contributions from the RandomForest model.</p>
+          <img class="slide-img" src="figures/featimp_RandomForest.png" alt="Top Feature Importances" />
+          <p>Non‑linear models capture interactions; importance reflects split utility, not causal effects.</p>
+        </section>
+
+        <section>
+          <h2>Executive Summary</h2>
+          <ul>
+            <li><b>Best model:</b> RandomForest (highest ROC‑AUC/F1 on this data).</li>
+            <li><b>Fairness:</b> Compare performance with/without sensitive attributes.</li>
+            <li><b>Limitations:</b> Label noise, sampling bias, self‑reporting, small sample size.</li>
+          </ul>
+          <p class="muted">This is an indicator, not a diagnosis. For medical questions, consult a clinician.</p>
+        </section>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.5/dist/reveal.js"></script>
+    <script>
+      Reveal.initialize({
+        hash: true,
+        slideNumber: 'c/t',
+        transition: 'fade',
+        controls: true,
+        progress: true,
+        width: 1180,
+        height: 720,
+        margin: 0.06,
+      });
+    </script>
+  </body>
+  </html>
+
+

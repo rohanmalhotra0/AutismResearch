@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Autism Screening – Analysis Gallery</title>
+    <meta name="theme-color" content="#1877F2" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png" />
+    <link rel="manifest" href="./site.webmanifest" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+
+    <style>
+      :root {
+        --bg: #ffffff;
+        --panel: #ffffff;
+        --text: #0F172A;
+        --muted: #475569;
+        --primary: #1877F2;
+        --primary-600: #1463C9;
+        --shadow: 0 10px 30px rgba(2, 24, 62, 0.12);
+        --radius: 16px;
+        --border: rgba(15,23,42,0.08);
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      }
+      .wrap { max-width: 1100px; margin: 0 auto; padding: 28px 18px 60px; }
+      h1 { font-size: 28px; margin: 0 0 10px 0; }
+      .sub { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
+
+      .notice {
+        background: #fffbeb; color: #92400e; border: 1px solid #f59e0b;
+        padding: 12px 14px; border-radius: 12px; margin: 12px 0 18px;
+      }
+
+      .card {
+        background: var(--panel);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+        padding: 16px;
+        margin: 14px 0;
+      }
+      .card h2 { margin: 0 0 8px 0; font-size: 20px; }
+      .card .hint { color: var(--muted); font-size: 13px; margin-bottom: 10px; }
+      .img { width: 100%; height: auto; border: 1px solid var(--border); border-radius: 12px; }
+      .grid { display: grid; gap: 16px; }
+      .grid.two { grid-template-columns: 1fr; }
+      @media (min-width: 700px) { .grid.two { grid-template-columns: 1fr 1fr; } }
+
+      .tag { display: inline-block; padding: 6px 10px; border-radius: 999px; background: rgba(24,119,242,0.1); color: var(--primary); font-weight: 700; font-size: 12px; }
+
+      a.btn { display: inline-block; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(24,119,242,0.28); color: var(--primary); text-decoration: none; font-weight: 700; }
+      a.btn:hover { background: rgba(24,119,242,0.08); }
+      .bullets { margin: 8px 0 0 18px; }
+      .bullets li { margin: 6px 0; color: #334155; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Autism Screening – Analysis Gallery</h1>
+      
+
+      <div class="card">
+        <h2>Model Summary (current)</h2>
+        <p class="hint">Latest metrics and executive notes are available in the report.</p>
+        <a class="btn" href="./final.html" target="_blank" rel="noopener">Open current report</a>
+      </div>
+
+      <!-- NEW: How-to build section -->
+      <div class="card">
+        <h2>How this was built (Notebook + Code)</h2>
+        <p class="hint">Step-by-step: clean/encode → split/scale → train a PyTorch logistic model → evaluate.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
+          <a class="btn" href="./how_to_model.ipynb" download>Download notebook (.ipynb)</a>
+          <a class="btn" href="./how_to_model.ipynb" target="_blank" rel="noopener">Open in browser</a>
+        </div>
+        <div class="grid two">
+          <div>
+            <div class="tag">Imports & Reproducibility</div>
+            <pre style="white-space:pre-wrap; background:#0b1220; color:#e2e8f0; padding:10px 12px; border-radius:12px; border:1px solid var(--border);"><code>import numpy as np, pandas as pd, torch
+from torch import nn
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn import metrics
+SEED = 42</code></pre>
+          </div>
+          <div>
+            <div class="tag">Model (PyTorch Logistic)</div>
+            <pre style="white-space:pre-wrap; background:#0b1220; color:#e2e8f0; padding:10px 12px; border-radius:12px; border:1px solid var(--border);"><code>class TorchLogReg(nn.Module):
+    def __init__(self, in_features):
+        super().__init__()
+        self.linear = nn.Linear(in_features, 1)
+    def forward(self, x):
+        return self.linear(x)</code></pre>
+          </div>
+        </div>
+        <p class="hint">Training uses BCEWithLogitsLoss with Adam, early stopping on validation loss, and standardization via StandardScaler. See the notebook for the full pipeline and evaluation code.</p>
+      </div>
+
+      <!-- CHANGED: Pair Class Balance + Correlation Heatmap -->
+      <div class="card">
+        <h2>Code to generate: Class Balance + Correlation</h2>
+        <pre style="white-space:pre-wrap; background:#0b1220; color:#e2e8f0; padding:10px 12px; border-radius:12px; border:1px solid var(--border);"><code># Class balance (Matplotlib/Seaborn)
+vc = df['class_asd'].value_counts().sort_index()
+ax = sns.barplot(x=vc.index, y=vc.values, palette=['#4C78A8','#F58518'])
+ax.set_xlabel('class_asd'); ax.set_ylabel('count'); ax.set_title('Class Balance')
+plt.tight_layout(); plt.savefig('figures/eda_class_balance.png', dpi=180)
+
+# Correlation heatmap
+num_corr = df.select_dtypes(include='number').corr()
+sns.heatmap(num_corr, cmap='coolwarm', center=0, cbar=True)
+plt.title('Correlation Heatmap')
+plt.tight_layout(); plt.savefig('figures/eda_corr_heatmap.png', dpi=180)</code></pre>
+      </div>
+      <div class="grid two">
+        <div class="card">
+          <h2>Class Balance</h2>
+          <p class="hint">Counts of ASD vs non‑ASD labels in the dataset.</p>
+          <img class="img" src="figures/eda_class_balance.png" alt="Class Balance" />
+          <div>
+            <b>What you see:</b> Relative frequency of each class.
+            <ul class="bullets">
+              <li>Imbalance can bias accuracy; use ROC‑AUC/PR‑AUC and F1 for fairer evaluation.</li>
+              <li>If imbalance is strong, consider class weights or resampling in training.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Correlation Heatmap</h2>
+          <p class="hint">Pairwise correlations among numeric features (darker = stronger).</p>
+          <img class="img" src="figures/eda_corr_heatmap.png" alt="Correlation Heatmap" />
+          <div>
+            <b>What you see:</b> Which variables move together.
+            <ul class="bullets">
+              <li>Highly correlated predictors may inflate variance for linear models.</li>
+              <li>Check for potential leakage; very strong correlations with the target warrant scrutiny.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Code to generate: Age/Result histograms</h2>
+        <pre style="white-space:pre-wrap; background:#0b1220; color:#e2e8f0; padding:10px 12px; border-radius:12px; border:1px solid var(--border);"><code># Age histogram by class
+sns.histplot(data=df, x='age', hue='class_asd', stat='density', common_norm=False, element='step')
+plt.tight_layout(); plt.savefig('figures/hist_age_by_class.png', dpi=180)
+
+# Result (A1–A10 total) histogram by class
+sns.histplot(data=df, x='result', hue='class_asd', stat='density', common_norm=False, element='step')
+plt.tight_layout(); plt.savefig('figures/hist_result_by_class.png', dpi=180)</code></pre>
+      </div>
+      <div class="grid two">
+        <div class="card">
+          <h2>Age by Class</h2>
+          <p class="hint">Distribution of ages split by label.</p>
+          <img class="img" src="figures/hist_age_by_class.png" alt="Age by Class" />
+          <div>
+            <b>Insights:</b>
+            <ul class="bullets">
+              <li>Look for shifts/overlap; clear shifts may indicate predictive signal.</li>
+              <li>Consider confounding factors (sampling, demographics).</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Result (A1–A10 total) by Class</h2>
+          <p class="hint">Distribution of screening score totals.</p>
+          <img class="img" src="figures/hist_result_by_class.png" alt="Result by Class" />
+          <div>
+            <b>Insights:</b>
+            <ul class="bullets">
+              <li>Higher totals generally raise predicted likelihood, especially in linear models.</li>
+              <li>Use calibration if converting scores to probabilities.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Code to generate: Key categorical counts</h2>
+        <pre style="white-space:pre-wrap; background:#0b1220; color:#e2e8f0; padding:10px 12px; border-radius:12px; border:1px solid var(--border);"><code># Used app before by class
+sns.countplot(data=df, x='used_app_before', hue='class_asd')
+plt.tight_layout(); plt.savefig('figures/count_used_app_before_by_class.png', dpi=180)
+
+# Family autism history by class
+sns.countplot(data=df, x='austim', hue='class_asd')
+plt.tight_layout(); plt.savefig('figures/count_austim_by_class.png', dpi=180)</code></pre>
+      </div>
+      <div class="grid two">
+        <div class="card">
+          <h2>Interactive 3D: A1 vs A7 vs Result (by class)</h2>
+          <div id="plot3dWrap" style="width:100%; position:relative;">
+            <div id="plot3d" style="width:100%; height:480px;"></div>
+          </div>
+          <script>
+            (function(){
+              function norm(s){ return s.toLowerCase().replace(/[^a-z0-9]/g,''); }
+              function findIdx(headers, candidates){
+                const H = headers.map(h=>norm(h));
+                for (const cand of candidates){
+                  const n = norm(cand);
+                  const i = H.indexOf(n);
+                  if (i !== -1) return i;
+                }
+                return -1;
+              }
+              fetch('./autism_screening.csv')
+                .then(r=>r.text())
+                .then(text=>{
+                  const lines = text.trim().split(/\r?\n/);
+                  if (lines.length < 2) return;
+                  const headers = lines[0].split(',');
+                  const iA1 = findIdx(headers, ['A1_Score','a1_score']);
+                  const iA7 = findIdx(headers, ['A7_Score','a7_score']);
+                  const iRes = findIdx(headers, ['result','Result']);
+                  const iCls = findIdx(headers, ['Class/ASD','class_asd','classasd','class']);
+                  if (iA1<0 || iA7<0 || iRes<0 || iCls<0) return;
+
+                  const a1=[], a7=[], res=[], lab=[], labText=[];
+                  for (let li=1; li<lines.length; li++){
+                    const row = lines[li].split(',');
+                    let v1 = parseFloat(row[iA1]);
+                    let v7 = parseFloat(row[iA7]);
+                    let vr = parseFloat(row[iRes]);
+                    const cl = row[iCls];
+                    if (!isFinite(v1) || !isFinite(v7) || !isFinite(vr)) continue;
+                    // add light jitter to avoid lattice lines from binary/integer variables
+                    v1 = v1 + (Math.random() - 0.5) * 0.25;
+                    v7 = v7 + (Math.random() - 0.5) * 0.25;
+                    vr = vr + (Math.random() - 0.5) * 0.25;
+                    let y = NaN;
+                    if (cl!==undefined){
+                      const cNorm = String(cl).toLowerCase();
+                      if (cNorm==='1' || cNorm==='yes' || cNorm==='asd'){ y = 1; }
+                      else if (cNorm==='0' || cNorm==='no' || cNorm==='not asd'){ y = 0; }
+                    }
+                    if (!isFinite(y)) continue;
+                    a1.push(v1); a7.push(v7); res.push(vr); lab.push(y); labText.push(y===1?'ASD':'No ASD');
+                  }
+
+                  const x0=[], y0=[], z0=[], x1=[], y1=[], z1=[];
+                  for (let i=0;i<lab.length;i++){
+                    if (lab[i]===1){ x1.push(a1[i]); y1.push(a7[i]); z1.push(res[i]); }
+                    else { x0.push(a1[i]); y0.push(a7[i]); z0.push(res[i]); }
+                  }
+                  const t0={ type:'scatter3d', mode:'markers', name:'No ASD', x:x0, y:y0, z:z0,
+                    marker:{ size:4, color:'#4C78A8', opacity:0.7 }, hovertemplate:'A1=%{x:.2f}<br>A7=%{y:.2f}<br>Result=%{z:.2f}<extra>No ASD</extra>' };
+                  const t1={ type:'scatter3d', mode:'markers', name:'ASD', x:x1, y:y1, z:z1,
+                    marker:{ size:4, color:'#F58518', opacity:0.75 }, hovertemplate:'A1=%{x:.2f}<br>A7=%{y:.2f}<br>Result=%{z:.2f}<extra>ASD</extra>' };
+                  const baseLayout={
+                    autosize: true,
+                    margin:{l:30,r:30,t:30,b:30},
+                    paper_bgcolor:'#ffffff',
+                    showlegend:false,
+                    hovermode:'closest',
+                    scene:{
+                      domain:{x:[0,1], y:[0,1]},
+                      xaxis:{title:'A1_Score', zeroline:false},
+                      yaxis:{title:'A7_Score', zeroline:false},
+                      zaxis:{title:'Result', zeroline:false},
+                      aspectmode:'cube',
+                      camera:{ center:{x:0,y:0,z:0}, eye:{x:1.6,y:1.6,z:1.2} }
+                    }
+                  };
+                  const wrap = document.getElementById('plot3dWrap');
+                  const div = document.getElementById('plot3d');
+
+                  function computeHeight(w){
+                    // keep ~4:3 aspect within reasonable bounds
+                    return Math.max(380, Math.min(560, Math.round(w * 0.72)));
+                  }
+
+                  function render(){
+                    const w = wrap.getBoundingClientRect().width || 800;
+                    const layout = Object.assign({}, baseLayout, {height: computeHeight(w)});
+                    Plotly.react(div, [t0,t1], layout, {displayModeBar:false, responsive:true});
+                  }
+
+                  // Initial render and responsive resize
+                  render();
+                  const ro = new ResizeObserver(() => render());
+                  try { ro.observe(wrap); } catch {}
+                  window.addEventListener('resize', render);
+                })
+                .catch(()=>{});
+            })();
+          </script>
+          <div>
+            <b>Insights:</b>
+            <ul class="bullets">
+              <li>Interactive rotation helps assess whether high A1/A7 responses together with higher totals cluster by class.</li>
+              <li>If clusters overlap heavily, expect limited separability from these items alone.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Family Autism History by Class</h2>
+          <p class="hint">Self‑reported family history.</p>
+          <img class="img" src="figures/count_austim_by_class.png" alt="Austim Flag by Class" />
+          <div>
+            <b>Insights:</b>
+            <ul class="bullets">
+              <li>Genetic/environmental factors can correlate; avoid deterministic interpretations.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHANGED: Pair Jaundice + Feature Importances -->
+      <div class="card">
+        <h2>Code to generate: Jaundice + RF importances</h2>
+        <pre style="white-space:pre-wrap; background:#0b1220; color:#e2e8f0; padding:10px 12px; border-radius:12px; border:1px solid var(--border);"><code># Jaundice counts by class
+sns.countplot(data=df, x='jundice', hue='class_asd')
+plt.tight_layout(); plt.savefig('figures/count_jundice_by_class.png', dpi=180)
+
+# RandomForest feature importances (top 20)
+rf = RandomForestClassifier(
+    n_estimators=400, max_depth=12, min_samples_leaf=5,
+    max_features='sqrt', class_weight='balanced', random_state=42)
+rf.fit(X_train, y_train)
+imp = pd.Series(rf.feature_importances_, index=X_train.columns).sort_values(ascending=False).head(20)
+imp.plot(kind='barh')
+plt.gca().invert_yaxis(); plt.tight_layout(); plt.savefig('figures/featimp_RandomForest.png', dpi=180)</code></pre>
+      </div>
+      <div class="grid two">
+        <div class="card">
+          <h2>Jaundice at Birth by Class</h2>
+          <p class="hint">Reported jaundice split by label.</p>
+          <img class="img" src="figures/count_jundice_by_class.png" alt="Jaundice Flag by Class" />
+          <div>
+            <b>Insights:</b>
+            <ul class="bullets">
+              <li>Associations vary; treat as a feature among many, not a predictor alone.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Top Feature Importances (RandomForest)</h2>
+          <p class="hint">Variable importance from RF (subject to re‑estimation).</p>
+          <img class="img" src="figures/featimp_RandomForest.png" alt="Top Feature Importances" />
+          <div>
+            <b>Insights:</b>
+            <ul class="bullets">
+              <li>Importance reflects split utility, not causality; confirm with multiple methods.</li>
+              <li>Expect ranks/weights to adjust after RF regularization and CV.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Code to generate: Training curve + Confusion matrix</h2>
+        <pre style="white-space:pre-wrap; background:#0b1220; color:#e2e8f0; padding:10px 12px; border-radius:12px; border:1px solid var(--border);"><code># Training curve (recorded each epoch)
+plt.plot(history['train_loss'], label='train'); plt.plot(history['val_loss'], label='val')
+plt.legend(); plt.tight_layout(); plt.savefig('figures/torch_logreg_training_curve.png', dpi=180)
+
+# Confusion matrix (sklearn)
+from sklearn.metrics import ConfusionMatrixDisplay
+ConfusionMatrixDisplay.from_predictions(y_test, y_pred)
+plt.tight_layout(); plt.savefig('figures/cm_TorchLogReg.png', dpi=180)</code></pre>
+      </div>
+      <div class="grid two">
+        <div class="card">
+          <h2>Training Dynamics (Logistic)</h2>
+          <p class="hint">Loss across epochs (train vs validation).</p>
+          <img class="img" src="figures/torch_logreg_training_curve.png" alt="Torch LogReg Training" />
+          <div>
+            <b>Insights:</b>
+            <ul class="bullets">
+              <li>Early stopping mitigates overfitting when validation loss stops improving.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Confusion Matrix (Logistic)</h2>
+          <p class="hint">Predicted vs true labels on held‑out test data.</p>
+          <img class="img" src="figures/cm_TorchLogReg.png" alt="Confusion Matrix - TorchLogReg" />
+          <div>
+            <b>Insights:</b>
+            <ul class="bullets">
+              <li>Balance false negatives vs false positives based on screening priorities.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Executive Notes</h2>
+        <p class="hint">Key takeaways and limitations.</p>
+        <ul class="bullets">
+          <li>Use ROC‑AUC and F1 to compare models; monitor calibration for probability outputs.</li>
+          <li>Re‑train RF with cross‑validation to avoid optimistic bias; scrutinize outliers.</li>
+          <li>Limitations: label noise, sampling bias, self‑reporting, sensitive attributes.</li>
+        </ul>
+      </div>
+    </div>
+  </body>
+  </html>
+
+

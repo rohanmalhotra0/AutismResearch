@@ -12,7 +12,9 @@
       </style>
     </head>
     <body>
-      <h1>Autism Screening - Analysis Report</h1><p>This is a concise, neutral analysis of a self-reported screening dataset. It is not medical advice.</p><h2>Model Summary</h2><table border="1" class="dataframe table">
+      <h1>Autism Screening - Analysis Report</h1><p>This is a concise, neutral analysis of a self-reported screening dataset. It is not medical advice.</p><div style='padding:10px; border:1px solid #f59e0b; background:#fffbeb; color:#92400e; border-radius:8px; margin:12px 0;'>
+      <b>Note on RandomForest metrics:</b> Previous results showed perfect scores, which strongly suggests overfitting. We will retrain with cross-validation and stricter regularization; updated metrics will appear in the next run.
+      </div><h2>Model Summary</h2><table border="1" class="dataframe table">
   <thead>
     <tr style="text-align: right;">
       <th></th>
@@ -36,12 +38,7 @@
     </tr>
     <tr>
       <th>RandomForest</th>
-      <td>1.0000</td>
-      <td>1.0000</td>
-      <td>1.0000</td>
-      <td>1.0000</td>
-      <td>1.0000</td>
-      <td>1.0000</td>
+      <td colspan="6" style="text-align:center; color:#92400e; background:#fff7ed;">Metrics withheld pending re‑estimation with cross‑validation (previous values indicated overfitting)</td>
     </tr>
   </tbody>
 </table><h3>Class Balance</h3><p>Counts of class_asd = 0 vs 1.</p><img src='figures/eda_class_balance.png' alt='Class Balance' style='max-width: 900px; width: 100%; height: auto;' /><h3>Correlation Heatmap</h3><p>Correlations across numeric features (darker = stronger).</p><img src='figures/eda_corr_heatmap.png' alt='Correlation Heatmap' style='max-width: 900px; width: 100%; height: auto;' /><h3>Age by Class</h3><p>Distribution of age split by class labels.</p><img src='figures/hist_age_by_class.png' alt='Age by Class' style='max-width: 900px; width: 100%; height: auto;' /><h3>Result by Class</h3><p>Distribution of result scores by class.</p><img src='figures/hist_result_by_class.png' alt='Result by Class' style='max-width: 900px; width: 100%; height: auto;' /><h3>Used App Before by Class</h3><p>Counts of prior app usage split by class.</p><img src='figures/count_used_app_before_by_class.png' alt='Used App Before by Class' style='max-width: 900px; width: 100%; height: auto;' /><h3>Austim Flag by Class</h3><p>Counts of reported autism flag by class.</p><img src='figures/count_austim_by_class.png' alt='Austim Flag by Class' style='max-width: 900px; width: 100%; height: auto;' /><h3>Jaundice Flag by Class</h3><p>Counts of reported jaundice by class.</p><img src='figures/count_jundice_by_class.png' alt='Jaundice Flag by Class' style='max-width: 900px; width: 100%; height: auto;' /><h3>Torch LogReg Training</h3><p>Training/validation loss over epochs.</p><img src='figures/torch_logreg_training_curve.png' alt='Torch LogReg Training' style='max-width: 900px; width: 100%; height: auto;' /><h3>Confusion Matrix - TorchLogReg</h3><p>Counts of predictions vs truth.</p><img src='figures/cm_TorchLogReg.png' alt='Confusion Matrix - TorchLogReg' style='max-width: 900px; width: 100%; height: auto;' /><h3>Top Feature Importances</h3><p>RandomForest importance for top features.</p><img src='figures/featimp_RandomForest.png' alt='Top Feature Importances' style='max-width: 900px; width: 100%; height: auto;' /><h2>Executive Summary</h2><ul><li><b>Best model:</b> RandomForest | {"Accuracy": 1.0, "Precision": 1.0, "Recall": 1.0, "F1": 1.0, "ROC_AUC": 1.0, "PR_AUC": 1.0}</li><li><b>Notes:</b> cleaned columns, encoded categoricals, scaled numerics, stratified splits.</li><li><b>Fairness check:</b> compared AUC with and without sensitive columns.</li><li><b>Limitations:</b> label noise, sampling bias, sensitive attributes, small sample size.</li></ul>

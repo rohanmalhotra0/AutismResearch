@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Autism Screening </title>
+
+    <meta name="theme-color" content="#1877F2">
+    <meta name="description" content="Test version of an interactive adult autism screening quiz with an explanatory, animated multi-step flow. Not medical advice.">
+
+    <!-- Favicon pack (already copied to repo root) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+    <link rel="manifest" href="./site.webmanifest">
+
+    <!-- Optional nice font (loads on GitHub Pages) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://embed.figma.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+
+    <style>
+      :root {
+        --bg: #E8F2FF;
+        --panel: #ffffff;
+        --text: #0F172A;
+        --muted: #475569;
+        --primary: #1877F2; /* Meta FB blue */
+        --primary-600: #1463C9;
+        --accent: #22C55E;
+        --danger: #EF4444;
+        --shadow: 0 10px 30px rgba(2, 24, 62, 0.12);
+        --radius: 16px;
+      }
+
+      html, body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 32px 20px 80px;
+      }
+
+      header.hero {
+        display: grid;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(24, 119, 242, 0.08);
+        color: var(--primary);
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 12px;
+        letter-spacing: 0.02em;
+        width: fit-content;
+      }
+
+      h1 {
+        font-size: 28px;
+        line-height: 1.25;
+        margin: 0;
+      }
+
+      .sub {
+        color: var(--muted);
+        font-size: 14px;
+        max-width: 78ch;
+      }
+
+      .credit {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      /* Progress */
+      .progress {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: linear-gradient(to bottom, rgba(232,242,255,0.95), rgba(232,242,255,0.7));
+        backdrop-filter: saturate(1.1) blur(2px);
+        padding: 10px 0 16px;
+        margin-bottom: 16px;
+      }
+      .bar {
+        height: 8px;
+        background: rgba(15,23,42,0.06);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .bar > span {
+        display: block;
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--primary), #4F46E5);
+        transition: width 360ms ease;
+      }
+
+      /* Card/Stepper */
+      .card {
+        background: var(--panel);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 22px 22px 10px;
+      }
+
+      .step {
+        display: none;
+        animation: slideIn 320ms ease both;
+      }
+      .step.active {
+        display: block;
+      }
+
+      @keyframes slideIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .step h2 {
+        margin: 0 0 6px 0;
+        font-size: 20px;
+      }
+      .hint {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 16px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 14px;
+      }
+      @media (min-width: 720px) {
+        .grid.two { grid-template-columns: 1fr 1fr; }
+      }
+
+      label.lbl { font-weight: 600; font-size: 14px; }
+      .help { color: var(--muted); font-size: 12px; }
+
+      input[type="number"], select, input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 12px;
+        border: 1px solid rgba(15,23,42,0.14);
+        border-radius: 12px;
+        background: #fff;
+        outline: none;
+        font-size: 14px;
+        transition: box-shadow 200ms ease, border-color 200ms ease;
+      }
+      input[type="number"]:focus, select:focus, input[type="text"]:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(24,119,242,0.12);
+      }
+
+      .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+      .chip {
+        display: inline-flex; align-items: center; gap: 8px;
+        border: 1px solid rgba(15,23,42,0.14);
+        border-radius: 999px; padding: 8px 12px;
+        cursor: pointer; user-select: none;
+        transition: transform 120ms ease, background 200ms ease, border-color 200ms ease;
+      }
+      .chip:hover { transform: translateY(-1px); }
+      .chip input { display: none; }
+      .chip.active { background: rgba(24,119,242,0.08); border-color: var(--primary); }
+
+      .nav {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px 0 6px;
+      }
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        gap: 10px; padding: 12px 16px;
+        border-radius: 12px; border: none; cursor: pointer;
+        font-weight: 700; letter-spacing: 0.01em;
+        transition: transform 120ms ease, box-shadow 160ms ease, background 200ms ease, opacity 160ms ease;
+      }
+      .btn:active { transform: translateY(1px); }
+      .btn-primary { background: var(--primary); color: #fff; }
+      .btn-primary:hover { background: var(--primary-600); }
+      .btn-ghost { background: transparent; color: var(--primary); border: 1px solid rgba(24,119,242,0.28); }
+      .btn-ghost:hover { background: rgba(24,119,242,0.08); }
+      .btn-danger { background: var(--danger); color: #fff; }
+
+      .result {
+        margin-top: 16px;
+        background: #ffffff;
+        border: 1px solid rgba(15,23,42,0.08);
+        border-radius: 14px;
+        padding: 14px 16px;
+        display: none;
+        animation: slideIn 320ms ease both;
+      }
+      .result.visible { display: block; }
+      .score {
+        font-size: 18px; font-weight: 700;
+      }
+      .pill {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 6px 10px; border-radius: 999px; font-weight: 700; font-size: 12px;
+      }
+      .pill.low { background: #E0F2FE; color: #075985; }
+      .pill.mod { background: #FEF3C7; color: #92400E; }
+      .pill.high { background: #FFEDD5; color: #9A3412; }
+      .pill.strong { background: #DCFAE6; color: #065F46; }
+
+      footer {
+        margin-top: 36px;
+        color: var(--muted);
+        font-size: 12px;
+        text-align: center;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px; height: 1px; padding: 0; margin: -1px;
+        overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+      }
+
+      /* Embed section */
+      .embed-card { margin-top: 18px; }
+      .iframe-wrap { border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; overflow: hidden; background: #fff; }
+      .iframe-wrap iframe { display: block; width: 100%; height: 450px; }
+
+      /* Top nav tabs */
+      .topnav {
+        position: sticky; top: 0; z-index: 30;
+        background: rgba(232,242,255,0.9);
+        backdrop-filter: saturate(1.1) blur(4px);
+        border-bottom: 1px solid rgba(15,23,42,0.06);
+        margin: -8px 0 8px 0;
+      }
+      .topnav .inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 4px; }
+      .brand { font-weight: 700; font-size: 14px; color: var(--text); }
+      .tabs { display: flex; gap: 8px; }
+      .tablink {
+        appearance: none; border: 1px solid rgba(24,119,242,0.28); background: transparent; color: var(--primary);
+        padding: 8px 12px; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 13px;
+      }
+      .tablink.active { background: rgba(24,119,242,0.12); }
+      .tab-view { display: none; }
+      .tab-view.active { display: block; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="hero">
+        <h1>Adult Autism Screening </h1>
+        <p class="sub">A friendlier, multi-step experience with simple explanations. This is an indicator tool using a simple neural‑network style model to estimate a probability. It is not medical advice; please consult your doctor for any concerns.</p>
+        <p class="credit">Created by Rohan Malhotra for NYU BAC</p>
+      </header>
+
+      <nav class="topnav" role="navigation" aria-label="Primary">
+        <div class="inner">
+          <div class="brand">ASD Screening</div>
+          <div class="tabs">
+            <button class="tablink active" data-tab="quiz" aria-current="page">Quiz</button>
+            <button class="tablink" data-tab="overview">Overview</button>
+            <button class="tablink" data-tab="analysis">Analysis</button>
+          </div>
+        </div>
+      </nav>
+
+      <div id="tab-quiz" class="tab-view active">
+        <div class="progress" aria-hidden="true">
+          <div class="bar" aria-hidden="true"><span id="progressFill"></span></div>
+        </div>
+
+        <section class="card" aria-live="polite">
+        <!-- Steps container -->
+        <div id="steps">
+          <!-- Intro step -->
+          <div class="step active" data-step="0">
+            <h2>Welcome</h2>
+            <p class="hint">This short quiz asks about your experiences and background to estimate the likelihood of autism. You can move back and forth, and your progress is shown above.</p>
+            <div class="nav">
+              <span></span>
+              <button class="btn btn-primary" data-next>Start</button>
+            </div>
+          </div>
+
+          <!-- Demographics step 1 -->
+          <div class="step" data-step="1">
+            <h2>About You</h2>
+            <p class="hint">Basic details help contextualize answers. We only use them to form features the model understands.</p>
+            <div class="grid two">
+              <div>
+                <label class="lbl" for="age">Age</label>
+                <input type="number" id="age" min="18" max="120" placeholder="e.g., 28" />
+                <div class="help">Adults only. If under 18, talk to a guardian or clinician.</div>
+              </div>
+              <div>
+                <label class="lbl">Gender</label>
+                <div class="chips" data-group="gender">
+                  <label class="chip"><input type="radio" name="gender" value="m" /> Male</label>
+                  <label class="chip"><input type="radio" name="gender" value="f" /> Female</label>
+                </div>
+                <div class="help">Used to assess differences in presentation.</div>
+              </div>
+              <div>
+                <label class="lbl" for="ethnicity">Ethnicity</label>
+                <select id="ethnicity">
+                  <option value="">Select…</option>
+                  <option>White-European</option>
+                  <option>Asian</option>
+                  <option>Black</option>
+                  <option>Latino</option>
+                  <option>Middle Eastern</option>
+                  <option>Others</option>
+                  <option>?</option>
+                </select>
+              </div>
+              <div>
+                <label class="lbl" for="country">Country of Residence</label>
+                <select id="country">
+                  <option value="">Select…</option>
+                  <option>United States</option>
+                  <option>United Kingdom</option>
+                  <option>Australia</option>
+                  <option>Brazil</option>
+                  <option>Canada</option>
+                  <option>Egypt</option>
+                  <option>France</option>
+                  <option>India</option>
+                  <option>Jordan</option>
+                  <option>Mexico</option>
+                  <option>New Zealand</option>
+                  <option>Spain</option>
+                  <option>United Arab Emirates</option>
+                  <option>?</option>
+                </select>
+              </div>
+              <div>
+                <label class="lbl">Jaundice at birth</label>
+                <div class="chips" data-group="jundice">
+                  <label class="chip"><input type="radio" name="jundice" value="yes" /> Yes</label>
+                  <label class="chip"><input type="radio" name="jundice" value="no" /> No</label>
+                </div>
+              </div>
+              <div>
+                <label class="lbl">Family history of autism</label>
+                <div class="chips" data-group="austim">
+                  <label class="chip"><input type="radio" name="austim" value="yes" /> Yes</label>
+                  <label class="chip"><input type="radio" name="austim" value="no" /> No</label>
+                </div>
+              </div>
+              <div>
+                <label class="lbl">Used this app before</label>
+                <div class="chips" data-group="used_app_before">
+                  <label class="chip"><input type="radio" name="used_app_before" value="yes" /> Yes</label>
+                  <label class="chip"><input type="radio" name="used_app_before" value="no" /> No</label>
+                </div>
+              </div>
+              <div>
+                <label class="lbl" for="relation">Who is filling this out?</label>
+                <select id="relation">
+                  <option value="">Select…</option>
+                  <option>Self</option>
+                  <option>Parent</option>
+                  <option>Relative</option>
+                  <option>Health care professional</option>
+                  <option>Others</option>
+                  <option>?</option>
+                </select>
+              </div>
+            </div>
+            <div class="nav">
+              <button class="btn btn-ghost" data-prev>Back</button>
+              <button class="btn btn-primary" data-next>Next</button>
+            </div>
+          </div>
+
+          <!-- A1..A10, one per step for clarity/animation -->
+          <div class="step" data-step="2">
+            <h2>Question 1</h2>
+            <p class="hint">I often notice small sounds when others do not.</p>
+            <div class="chips" data-group="a1_score">
+              <label class="chip"><input type="radio" name="a1_score" value="1" /> Agree</label>
+              <label class="chip"><input type="radio" name="a1_score" value="0" /> Disagree</label>
+            </div>
+            <div class="nav"><button class="btn btn-ghost" data-prev>Back</button><button class="btn btn-primary" data-next>Next</button></div>
+          </div>
+          <div class="step" data-step="3">
+            <h2>Question 2</h2>
+            <p class="hint">When I’m reading a story, I find it difficult to work out the characters’ intentions.</p>
+            <div class="chips" data-group="a2_score">
+              <label class="chip"><input type="radio" name="a2_score" value="1" /> Agree</label>
+              <label class="chip"><input type="radio" name="a2_score" value="0" /> Disagree</label>
+            </div>
+            <div class="nav"><button class="btn btn-ghost" data-prev>Back</button><button class="btn btn-primary" data-next>Next</button></div>
+          </div>
+          <div class="step" data-step="4">
+            <h2>Question 3</h2>
+            <p class="hint">I find it easy to "read between the lines" when someone is talking to me.</p>
+            <div class="chips" data-group="a3_score">
+              <label class="chip"><input type="radio" name="a3_score" value="0" /> Agree</label>
+              <label class="chip"><input type="radio" name="a3_score" value="1" /> Disagree</label>
+            </div>
+            <div class="help">Some items are reverse-scored per common screening practice.</div>
+            <div class="nav"><button class="btn btn-ghost" data-prev>Back</button><button class="btn btn-primary" data-next>Next</button></div>
+          </div>
+          <div class="step" data-step="5">
+            <h2>Question 4</h2>
+            <p class="hint">I usually concentrate more on the whole picture, rather than the small details.</p>
+            <div class="chips" data-group="a4_score">
+              <label class="chip"><input type="radio" name="a4_score" value="0" /> Agree</label>
+              <label class="chip"><input type="radio" name="a4_score" value="1" /> Disagree</label>
+            </div>
+            <div class="nav"><button class="btn btn-ghost" data-prev>Back</button><button class="btn btn-primary" data-next>Next</button></div>
+          </div>
+          <div class="step" data-step="6">
+            <h2>Question 5</h2>
+            <p class="hint">I know how to tell if someone listening to me is getting bored.</p>
+            <div class="chips" data-group="a5_score">
+              <label class="chip"><input type="radio" name="a5_score" value="0" /> Agree</label>
+              <label class="chip"><input type="radio" name="a5_score" value="1" /> Disagree</label>
+            </div>
+            <div class="nav"><button class="btn btn-ghost" data-prev>Back</button><button class="btn btn-primary" data-next>Next</button></div>
+          </div>
+          <div class="step" data-step="7">
+            <h2>Question 6</h2>
+            <p class="hint">I find it easy to do more than one thing at once.</p>
+            <div class="chips" data-group="a6_score">
+              <label class="chip"><input type="radio" name="a6_score" value="0" /> Agree</label>
+              <label class="chip"><input type="radio" name="a6_score" value="1" /> Disagree</label>
+            </div>
+            <div class="nav"><button class="btn btn-ghost" data-prev>Back</button><button class="btn btn-primary" data-next>Next</button></div>
+          </div>
+          <div class="step" data-step="8">
+            <h2>Question 7</h2>
+            <p class="hint">I find it easy to work out what someone is thinking or feeling just by looking at their face.</p>
+            <div class="chips" data-group="a7_score">
+              <label class="chip"><input type="radio" name="a7_score" value="0" /> Agree</label>
+              <label class="chip"><input type="radio" name="a7_score" value="1" /> Disagree</label>
+            </div>
+            <div class="nav"><button class="btn btn-ghost" data-prev>Back</button><button class="btn btn-primary" data-next>Next</button></div>
+          </div>
+          <div class="step" data-step="9">
+            <h2>Question 8</h2>
+            <p class="hint">If there is an interruption, I can switch back to what I was doing very quickly.</p>
+            <div class="chips" data-group="a8_score">
+              <label class="chip"><input type="radio" name="a8_score" value="0" /> Agree</label>
+              <label class="chip"><input type="radio" name="a8_score" value="1" /> Disagree</label>
+            </div>
+            <div class="nav"><button class="btn btn-ghost" data-prev>Back</button><button class="btn btn-primary" data-next>Next</button></div>
+          </div>
+          <div class="step" data-step="10">
+            <h2>Question 9</h2>
+            <p class="hint">I like to collect information about categories of things.</p>
+            <div class="chips" data-group="a9_score">
+              <label class="chip"><input type="radio" name="a9_score" value="1" /> Agree</label>
+              <label class="chip"><input type="radio" name="a9_score" value="0" /> Disagree</label>
+            </div>
+            <div class="nav"><button class="btn btn-ghost" data-prev>Back</button><button class="btn btn-primary" data-next>Next</button></div>
+          </div>
+          <div class="step" data-step="11">
+            <h2>Question 10</h2>
+            <p class="hint">I find it difficult to work out people’s intentions.</p>
+            <div class="chips" data-group="a10_score">
+              <label class="chip"><input type="radio" name="a10_score" value="1" /> Agree</label>
+              <label class="chip"><input type="radio" name="a10_score" value="0" /> Disagree</label>
+            </div>
+            <div class="nav">
+              <button class="btn btn-ghost" data-prev>Back</button>
+              <button class="btn btn-primary" id="calcBtn">Calculate</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div id="resultPanel" class="result" aria-live="polite">
+          <div id="resultSummary" class="score">Score</div>
+          <div id="resultExplain" class="help" style="margin-top:8px"></div>
+          <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap">
+            <button class="btn btn-ghost" id="downloadPdf">Download as PDF</button>
+            <button class="btn btn-ghost" id="downloadCsv">Download as CSV</button>
+            <button class="btn btn-ghost" id="resetAll">Reset</button>
+          </div>
+        </div>
+        </section>
+      </div>
+
+      <!-- Overview slides (Figma) -->
+      <section id="tab-overview" class="card embed-card tab-view" aria-label="Overview slides">
+        <h2 style="margin:0 0 6px 0; font-size:20px;">Overview Slides</h2>
+        <p class="hint">A quick visual overview of the goal, method, and how to read results.</p>
+        <h3 style="margin:10px 0 6px; font-size:16px;">About Autism & This Quiz</h3>
+        <p style="color:#475569; font-size:14px; margin-top:0;">
+          Autism spectrum disorder (ASD) involves differences in social communication, sensory processing, and patterns of behavior. This quiz is an educational screening aid based on common self‑report items; it estimates a probability using a simple linear neural‑network style model. It is not medical advice.
+        </p>
+        <h4 style="margin:8px 0 6px; font-size:14px;">What the questions cover</h4>
+        <ul style="margin:0 0 10px 18px; color:#334155; font-size:14px;">
+          <li>Sensory sensitivity (e.g., noticing small sounds)</li>
+          <li>Social understanding / theory of mind (e.g., reading intentions, facial cues)</li>
+          <li>Attention switching and flexibility (e.g., interruptions, multitasking)</li>
+          <li>Detail vs big‑picture focus (e.g., collecting categories, focusing on details)</li>
+        </ul>
+        <p style="color:#475569; font-size:13px; margin-top:0;">
+          Some items are reverse‑scored by convention. The A1–A10 answers form a total score that contributes to the estimated probability alongside demographics (e.g., age, gender) encoded as features.
+        </p>
+        <h4 style="margin:8px 0 6px; font-size:14px;">How to interpret the result</h4>
+        <ul style="margin:0 0 12px 18px; color:#334155; font-size:14px;">
+          <li>The output is an indicator of likelihood, not a diagnosis.</li>
+          <li>Higher confidence reflects stronger alignment of your pattern to ASD‑like responses.</li>
+          <li>Consider following up with a clinician if your result is High or Strong.</li>
+        </ul>
+        <div class="iframe-wrap">
+          <iframe style="border: 0;" loading="eager" src="https://embed.figma.com/slides/IvNu8x6PHucn7KwIhbfoEY/ASD-Prediction?node-id=1-545&embed-host=share" allowfullscreen></iframe>
+        </div>
+      </section>
+
+      <section id="tab-analysis" class="card embed-card tab-view" aria-label="Full analysis">
+        <h2 style="margin:0 0 6px 0; font-size:20px;">Full Analysis</h2>
+        <p class="hint">Deep-dive EDA and model results generated from the dataset. Explanations precede each graphic.</p>
+        <div class="iframe-wrap">
+          <iframe style="border: 0;" loading="eager" src="./analysisGallery.html" allowfullscreen></iframe>
+        </div>
+      </section>
+
+      <footer>
+        Educational tool; not a diagnosis. For medical questions, consult a clinician. Rohan Malhotra <a href="https://rohanm.org" target="_blank" rel="noopener">rohanm.org</a>
+      </footer>
+    </div>
+
+    <script>
+      // Small helpers
+      const $ = (sel, el=document) => el.querySelector(sel);
+      const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+      const snake = (s) => s.toLowerCase().replace(/\s+/g, ' ').trim().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, '_');
+      const valRB = (name) => {
+        const el = document.querySelector(`input[name="${name}"]:checked`);
+        return el ? el.value : '';
+      };
+
+      // Chip UI activation
+      document.addEventListener('click', (e) => {
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        const input = chip.querySelector('input');
+        if (!input) return;
+        const group = chip.parentElement;
+        if (group && group.classList.contains('chips')) {
+          $$('.chip', group).forEach(c => c.classList.remove('active'));
+        }
+        chip.classList.add('active');
+        if (input.type === 'radio') input.checked = true;
+      });
+
+      // Stepper
+      const steps = $$('#steps .step');
+      let stepIndex = 0;
+      const totalSteps = steps.length - 1; // 0-indexed; last includes calculate
+      const progressFill = $('#progressFill');
+      const updateProgress = () => {
+        const pct = Math.round((stepIndex) / totalSteps * 100);
+        progressFill.style.width = pct + '%';
+      };
+      const showStep = (idx) => {
+        steps.forEach((s,i)=>s.classList.toggle('active', i === idx));
+        stepIndex = idx;
+        updateProgress();
+      };
+      document.addEventListener('click', (e) => {
+        if (e.target.matches('[data-next]')) {
+          e.preventDefault();
+          showStep(Math.min(stepIndex + 1, steps.length - 1));
+        }
+        if (e.target.matches('[data-prev]')) {
+          e.preventDefault();
+          showStep(Math.max(stepIndex - 1, 0));
+        }
+      });
+
+      // Validation (light) for demographics step
+      function validateDemographics() {
+        const age = parseInt($('#age').value || '');
+        if (!age || age < 18 || age > 120) return false;
+        if (!valRB('gender')) return false;
+        return true;
+      }
+      // Hook next from step 1 to validate
+      steps[1].querySelector('[data-next]').addEventListener('click', (e) => {
+        if (!validateDemographics()) {
+          e.preventDefault();
+          const hint = document.createElement('div');
+          hint.className = 'help';
+          hint.style.color = 'var(--danger)';
+          hint.textContent = 'Please provide a valid age (18-120) and select gender to continue.';
+          steps[1].appendChild(hint);
+          setTimeout(()=> hint.remove(), 2400);
+        }
+      });
+
+      // MODEL
+      const DEFAULT_MODEL = {
+        feature_names: [
+          'a1_score','a2_score','a3_score','a4_score','a5_score',
+          'a6_score','a7_score','a8_score','a9_score','a10_score',
+          'age','gender','jundice','austim','used_app_before','result',
+          'ethnicity_asian','ethnicity_black','ethnicity_latino','ethnicity_middle eastern',
+          'ethnicity_others','ethnicity_white-european','ethnicity_?',
+          'country_of_res_united states','country_of_res_united kingdom','country_of_res_australia',
+          'country_of_res_brazil','country_of_res_canada','country_of_res_egypt',
+          'country_of_res_france','country_of_res_india','country_of_res_jordan',
+          'country_of_res_mexico','country_of_res_new zealand','country_of_res_spain',
+          'country_of_res_united arab emirates','country_of_res_?',
+          'age_desc_18 and more',
+          'relation_parent','relation_relative','relation_self',
+          'relation_health care professional','relation_others','relation_?'
+        ],
+        coef: [
+          1.2,1.2,1.2,1.2,1.2, 1.2,1.2,1.2,1.2,1.2,
+          0.01,0.2,0.1,0.1,0.0,0.05, 0,0,0,0,0,0,0,
+          0,0,0,0,0,0, 0,0,0, 0,0,0, 0,0, 0, 0,0,0, 0,0,0
+        ],
+        bias: -8.4,
+        scaler: { with_mean: false, with_std: false, mean: [], scale: [] }
+      };
+
+      let MODEL = null;
+      async function ensureModel() {
+        if (MODEL) return MODEL;
+        try {
+          const res = await fetch('./model_linear.json', { cache: 'no-store' });
+          if (res.ok) {
+            MODEL = await res.json();
+          } else {
+            MODEL = DEFAULT_MODEL;
+          }
+        } catch (e) {
+          MODEL = DEFAULT_MODEL;
+        }
+        return MODEL;
+      }
+
+      const sigmoid = (z) => 1 / (1 + Math.exp(-z));
+
+      function buildFeatureVector() {
+        // Raw inputs
+        const age = parseFloat($('#age').value || '0');
+        const gender = valRB('gender');
+        const ethnicity = ($('#ethnicity').value || '').trim();
+        const country = ($('#country').value || '').trim();
+        const jundice = valRB('jundice');
+        const austim = valRB('austim');
+        const used_app_before = valRB('used_app_before');
+        const relation = ($('#relation').value || '').trim();
+
+        const aScores = {};
+        for (let i=1; i<=10; i++) {
+          const key = `a${i}_score`;
+          aScores[key] = parseInt(valRB(key) || '0');
+        }
+        const total = Object.values(aScores).reduce((a,b)=>a+b,0);
+
+        // Build vector aligned to MODEL.feature_names
+        const vecMap = new Map();
+
+        // direct numeric
+        for (let i=1; i<=10; i++) vecMap.set(`a${i}_score`, aScores[`a${i}_score`]);
+        vecMap.set('age', isNaN(age) ? 0 : age);
+        vecMap.set('gender', gender === 'm' ? 1 : gender === 'f' ? 0 : 0);
+        vecMap.set('jundice', jundice === 'yes' ? 1 : 0);
+        vecMap.set('austim', austim === 'yes' ? 1 : 0);
+        vecMap.set('used_app_before', used_app_before === 'yes' ? 1 : 0);
+        vecMap.set('result', total);
+
+        // One-hots
+        // Ethnicity
+        const ethKey = ethnicity.toLowerCase();
+        const ethCanon = {
+          'white-european': 'ethnicity_white-european',
+          'asian': 'ethnicity_asian',
+          'black': 'ethnicity_black',
+          'latino': 'ethnicity_latino',
+          'middle eastern': 'ethnicity_middle eastern',
+          'others': 'ethnicity_others',
+          '?': 'ethnicity_?'
+        };
+        if (ethCanon[ethKey]) vecMap.set(ethCanon[ethKey], 1);
+
+        // Country
+        const c = country.toLowerCase();
+        const cCanon = {
+          'united states': 'country_of_res_united states',
+          'united kingdom': 'country_of_res_united kingdom',
+          'australia': 'country_of_res_australia',
+          'brazil': 'country_of_res_brazil',
+          'canada': 'country_of_res_canada',
+          'egypt': 'country_of_res_egypt',
+          'france': 'country_of_res_france',
+          'india': 'country_of_res_india',
+          'jordan': 'country_of_res_jordan',
+          'mexico': 'country_of_res_mexico',
+          'new zealand': 'country_of_res_new zealand',
+          'spain': 'country_of_res_spain',
+          'united arab emirates': 'country_of_res_united arab emirates',
+          '?': 'country_of_res_?'
+        };
+        if (cCanon[c]) vecMap.set(cCanon[c], 1);
+
+        // Age desc (adults only in this quiz)
+        vecMap.set('age_desc_18 and more', 1);
+
+        // Relation
+        const r = relation.toLowerCase();
+        const rCanon = {
+          'self': 'relation_self',
+          'parent': 'relation_parent',
+          'relative': 'relation_relative',
+          'health care professional': 'relation_health care professional',
+          'others': 'relation_others',
+          '?': 'relation_?'
+        };
+        if (rCanon[r]) vecMap.set(rCanon[r], 1);
+
+        // Assemble numeric vector
+        const feats = MODEL.feature_names.map(name => vecMap.get(name) ?? 0);
+
+        // Optional scaling (no-op in default)
+        const { scaler } = MODEL;
+        if (scaler && scaler.with_mean && Array.isArray(scaler.mean) && scaler.mean.length === feats.length) {
+          for (let i=0; i<feats.length; i++) feats[i] = feats[i] - scaler.mean[i];
+        }
+        if (scaler && scaler.with_std && Array.isArray(scaler.scale) && scaler.scale.length === feats.length) {
+          for (let i=0; i<feats.length; i++) feats[i] = scaler.scale[i] ? feats[i] / scaler.scale[i] : feats[i];
+        }
+
+        return { feats, total };
+      }
+
+      function predictProbability(feats) {
+        const z = MODEL.coef.reduce((acc, w, i) => acc + w * (feats[i] ?? 0), MODEL.bias || 0);
+        return sigmoid(z);
+      }
+
+      function category(prob) {
+        if (prob >= 0.75) return { key: 'strong', label: 'Strong Autism Likelihood' };
+        if (prob >= 0.50) return { key: 'high', label: 'High Autism Likelihood' };
+        if (prob >= 0.33) return { key: 'mod', label: 'Moderate Likelihood' };
+        return { key: 'low', label: 'Lower Likelihood' };
+      }
+
+      // Calculate & show result
+      $('#calcBtn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        await ensureModel();
+        const { feats, total } = buildFeatureVector();
+        const prob = predictProbability(feats);
+        const pct = Math.round(prob * 100);
+        const cat = category(prob);
+
+        const summary = `A1–A10 total: ${total} · Confidence: ${pct}%`;
+        const label = cat.label;
+        const pill = `<span class="pill ${cat.key}">${label}</span>`;
+        $('#resultSummary').innerHTML = `${pill} ${summary}`;
+        $('#resultExplain').textContent = 'This estimate comes from a simple linear neural‑network style model informed by your answers. It is not a diagnosis. Consider discussing results with a clinician.';
+
+        const panel = $('#resultPanel');
+        panel.classList.add('visible');
+        showStep(steps.length - 1); // stay on last step
+        updateProgress();
+
+        // store last result for exports
+        window.__LAST_RESULT__ = { prob, pct, catKey: cat.key, label, total, timestamp: new Date().toISOString() };
+      });
+
+      // CSV and PDF helpers
+      function collectResponses() {
+        const obj = {};
+        obj.age = $('#age').value || '';
+        obj.gender = valRB('gender');
+        obj.ethnicity = $('#ethnicity').value || '';
+        obj.country = $('#country').value || '';
+        obj.jundice = valRB('jundice');
+        obj.austim = valRB('austim');
+        obj.used_app_before = valRB('used_app_before');
+        obj.relation = $('#relation').value || '';
+        for (let i=1; i<=10; i++) obj[`a${i}_score`] = valRB(`a${i}_score`);
+        return obj;
+      }
+
+      // CSV download (now includes probability and category)
+      $('#downloadCsv').addEventListener('click', async (e) => {
+        e.preventDefault();
+        await ensureModel();
+        const entries = [];
+        const add = (k,v)=>entries.push([k, String(v).replaceAll('"','""')]);
+
+        const resp = collectResponses();
+        Object.entries(resp).forEach(([k,v]) => add(k, v));
+
+        const { feats, total } = buildFeatureVector();
+        const prob = predictProbability(feats);
+        const pct = Math.round(prob * 100);
+        const cat = category(prob);
+        add('result_total', total);
+        add('probability', prob.toFixed(4));
+        add('confidence_pct', pct);
+        add('category', cat.label);
+
+        const rows = ['field,value', ...entries.map(([k,v])=>`${k},"${v}"`)];
+        const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'autism_quiz_response.csv';
+        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      });
+
+      // PDF download (nicely formatted summary)
+      $('#downloadPdf').addEventListener('click', async (e) => {
+        e.preventDefault();
+        await ensureModel();
+        if (!window.__LAST_RESULT__) {
+          const hint = document.createElement('div');
+          hint.className = 'help';
+          hint.style.color = 'var(--danger)';
+          hint.textContent = 'Please complete the quiz and click Calculate before exporting to PDF.';
+          $('#resultPanel').appendChild(hint);
+          setTimeout(()=>hint.remove(), 2400);
+          return;
+        }
+
+        const resp = collectResponses();
+        const { feats, total } = buildFeatureVector();
+        const prob = predictProbability(feats);
+        const pct = Math.round(prob * 100);
+        const cat = category(prob);
+        const ts = new Date();
+
+        const node = document.createElement('div');
+        node.style.padding = '18px';
+        node.style.maxWidth = '800px';
+        node.innerHTML = `
+          <div style="font-family: Inter, Arial, sans-serif; color:#0F172A;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <h2 style="margin:0; font-size:20px;">Adult Autism Screening – Summary</h2>
+              <span style="font-size:12px; color:#475569;">${ts.toLocaleString()}</span>
+            </div>
+            <div style="border:1px solid #e5e7eb; border-radius:12px; padding:12px; margin-bottom:12px;">
+              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <span style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; font-weight:700; font-size:12px; ${cat.key==='low'?'background:#E0F2FE;color:#075985':cat.key==='mod'?'background:#FEF3C7;color:#92400E':cat.key==='high'?'background:#FFEDD5;color:#9A3412':'background:#DCFAE6;color:#065F46'}">${cat.label}</span>
+                <div style="font-weight:700;">Confidence: ${pct}%</div>
+                <div>A1–A10 total: ${total}</div>
+              </div>
+              <div style="margin-top:6px; font-size:12px; color:#475569;">This is an indicator, not a diagnosis. For medical questions, consult a clinician.</div>
+            </div>
+
+            <h3 style="margin:10px 0 6px; font-size:16px;">Responses</h3>
+            <table style="width:100%; border-collapse:collapse; font-size:12px;">
+              <tbody>
+                <tr><td style="border:1px solid #e5e7eb; padding:6px; width:40%">Age</td><td style="border:1px solid #e5e7eb; padding:6px;">${resp.age||''}</td></tr>
+                <tr><td style="border:1px solid #e5e7eb; padding:6px;">Gender</td><td style="border:1px solid #e5e7eb; padding:6px;">${resp.gender||''}</td></tr>
+                <tr><td style="border:1px solid #e5e7eb; padding:6px;">Ethnicity</td><td style="border:1px solid #e5e7eb; padding:6px;">${resp.ethnicity||''}</td></tr>
+                <tr><td style="border:1px solid #e5e7eb; padding:6px;">Country</td><td style="border:1px solid #e5e7eb; padding:6px;">${resp.country||''}</td></tr>
+                <tr><td style="border:1px solid #e5e7eb; padding:6px;">Jaundice at birth</td><td style="border:1px solid #e5e7eb; padding:6px;">${resp.jundice||''}</td></tr>
+                <tr><td style="border:1px solid #e5e7eb; padding:6px;">Family autism history</td><td style="border:1px solid #e5e7eb; padding:6px;">${resp.austim||''}</td></tr>
+                <tr><td style="border:1px solid #e5e7eb; padding:6px;">Used app before</td><td style="border:1px solid #e5e7eb; padding:6px;">${resp.used_app_before||''}</td></tr>
+                <tr><td style="border:1px solid #e5e7eb; padding:6px;">Relation</td><td style="border:1px solid #e5e7eb; padding:6px;">${resp.relation||''}</td></tr>
+              </tbody>
+            </table>
+
+            <h3 style="margin:12px 0 6px; font-size:16px;">A1–A10 Answers</h3>
+            <table style="width:100%; border-collapse:collapse; font-size:12px;">
+              <tbody>
+                ${Array.from({length:10}, (_,i)=>`<tr><td style=\"border:1px solid #e5e7eb; padding:6px; width:40%\">A${i+1}_Score</td><td style=\"border:1px solid #e5e7eb; padding:6px;\">${resp[`a${i+1}_score`]||''}</td></tr>`).join('')}
+              </tbody>
+            </table>
+
+            <div style="margin-top:10px; font-size:11px; color:#475569;">Created by Rohan Malhotra for NYU BAC · ${ts.toLocaleDateString()}</div>
+          </div>
+        `;
+        document.body.appendChild(node);
+
+        const opt = {
+          margin:       8,
+          filename:     'autism_quiz_summary.pdf',
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2, useCORS: true },
+          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        await html2pdf().set(opt).from(node).save();
+        node.remove();
+      });
+
+      // Reset
+      $('#resetAll').addEventListener('click', (e) => {
+        e.preventDefault();
+        // Clear inputs
+        $('#age').value = '';
+        $('#ethnicity').value = '';
+        $('#country').value = '';
+        $('#relation').value = '';
+        ['gender','jundice','austim','used_app_before', ...Array.from({length:10}, (_,i)=>`a${i+1}_score`)].forEach(name => {
+          $$(`input[name="${name}"]`).forEach(r => r.checked = false);
+        });
+        $$('.chip').forEach(c=>c.classList.remove('active'));
+        $('#resultPanel').classList.remove('visible');
+        showStep(0);
+      });
+
+      // Initial
+      updateProgress();
+
+      // Tabs logic
+      function setTab(name) {
+        const quiz = document.getElementById('tab-quiz');
+        const overview = document.getElementById('tab-overview');
+        const analysis = document.getElementById('tab-analysis');
+        const quizBtn = document.querySelector('.tablink[data-tab="quiz"]');
+        const ovBtn = document.querySelector('.tablink[data-tab="overview"]');
+        const anBtn = document.querySelector('.tablink[data-tab="analysis"]');
+        const views = [quiz, overview, analysis];
+        views.forEach(v => v && v.classList.remove('active'));
+        [quizBtn, ovBtn, anBtn].forEach(b => b && b.classList.remove('active'));
+        ;[quizBtn, ovBtn, anBtn].forEach(b => b && b.removeAttribute('aria-current'));
+
+        if (name === 'overview') {
+          overview && overview.classList.add('active');
+          ovBtn && ovBtn.classList.add('active');
+          ovBtn && ovBtn.setAttribute('aria-current','page');
+          try { history.replaceState(null,'', '#overview'); } catch {}
+        } else if (name === 'analysis') {
+          analysis && analysis.classList.add('active');
+          anBtn && anBtn.classList.add('active');
+          anBtn && anBtn.setAttribute('aria-current','page');
+          try { history.replaceState(null,'', '#analysis'); } catch {}
+        } else {
+          quiz && quiz.classList.add('active');
+          quizBtn && quizBtn.classList.add('active');
+          quizBtn && quizBtn.setAttribute('aria-current','page');
+          try { history.replaceState(null,'', '#quiz'); } catch {}
+        }
+      }
+
+      document.addEventListener('click', (e) => {
+        const t = e.target.closest('.tablink');
+        if (!t) return;
+        const tab = t.getAttribute('data-tab');
+        if (!tab) return;
+        e.preventDefault();
+        setTab(tab);
+      });
+
+      // Initialize tab from hash
+      if (location.hash === '#overview') setTab('overview');
+      else if (location.hash === '#analysis') setTab('analysis');
+
+      // Preload slides iframe on first load to ensure it's ready when switching tabs
+      (function preloadSlides(){
+        const ifr = document.querySelector('#tab-overview iframe');
+        if (!ifr) return;
+        try { ifr.setAttribute('loading','eager'); } catch {}
+        if (ifr.src) {
+          // Reassigning the same src can encourage the browser to fetch even if hidden
+          const s = ifr.src; ifr.src = s;
+        }
+      })();
+
+      // Preload analysis iframe too
+      (function preloadAnalysis(){
+        const ifr = document.querySelector('#tab-analysis iframe');
+        if (!ifr) return;
+        try { ifr.setAttribute('loading','eager'); } catch {}
+        if (ifr.src) { const s = ifr.src; ifr.src = s; }
+      })();
+    </script>
+  </body>
+</html>
+
+
