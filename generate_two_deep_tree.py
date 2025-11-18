@@ -195,7 +195,7 @@ def main():
         fontsize=7,
         max_depth=10,
     )
-    plt.title("Decision Tree Depth=10", pad=8)
+    plt.title("Decision Tre Depth=10", pad=8)
     plt.tight_layout(rect=[0, 0, 1, 0.98])
     plt.savefig(out_path10_nr, dpi=150, bbox_inches="tight")
     plt.close()
