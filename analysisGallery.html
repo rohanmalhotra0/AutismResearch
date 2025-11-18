@@ -407,6 +407,73 @@ plt.tight_layout(); plt.savefig('figures/cm_TorchLogReg.png', dpi=180)</code></p
           <li>Your quiz result is an indicator to help you reflect. If your likelihood is High or Strong, consider talking with a clinician for guidance.</li>
         </ul>
       </div>
+
+      <!-- Requested: Matplotlib RandomForest graph at bottom -->
+      <div class="card">
+        <h2>RandomForest Feature Importances (Matplotlib)</h2>
+        <p class="hint">Bar chart of the top-ranked input variables by split importance.</p>
+        <img class="img" src="figures/featimp_RandomForest.png" alt="RandomForest Feature Importances (Matplotlib)" />
+        <div>
+          <b>Insights:</b>
+          <ul class="bullets">
+            <li>Highlights which answers most helped the model separate classes.</li>
+            <li>Use alongside other checks (calibration, CV) to avoid over‑interpreting any single feature.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- New: Two-Deep Decision Tree -->
+      <div class="card">
+        <h2>Code to generate: Two‑Deep Decision Tree (Entropy)</h2>
+        <p class="hint">Quick, interpretable rules from a very shallow tree.</p>
+        <pre style="white-space:pre-wrap; background:#0b1220; color:#e2e8f0; padding:10px 12px; border-radius:12px; border:1px solid var(--border);"><code># Fit a very shallow decision tree (depth=2) for interpretability
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+import matplotlib.pyplot as plt
+
+tree = DecisionTreeClassifier(
+    max_depth=2, criterion='entropy',
+    class_weight='balanced', random_state=42)
+tree.fit(X_train, y_train)
+
+# Matplotlib rendition (no Graphviz dependency)
+plt.figure(figsize=(10, 6))
+plot_tree(
+    tree,
+    feature_names=X_train.columns.tolist(),
+    class_names=['No ASD','ASD'],
+    impurity=True, filled=True, rounded=True, fontsize=8
+)
+plt.title('Two-Deep Decision Tree (Entropy)')
+plt.tight_layout()
+plt.savefig('figures/tree_two_deep.png', dpi=180, bbox_inches='tight')
+
+</code></pre>
+      </div>
+      <div class="card">
+        <h2>Two Deep Decision Tree </h2>
+       
+        <img class="img" src="figures/tree_two_deep.png" alt="Two-Deep Decision Tree (Entropy)" />
+        <div>
+          <b>Insights:</b>
+          <ul class="bullets">
+            <li>Shallow trees surface high level rules they trade accuracy for interpretability</li>
+           
+          </ul>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h2>Decision Tree Depth 10</h2>
+        <p class="hint"></p>
+        <img class="img" src="figures/tree_depth10_noresult.png" alt="Decision Tree depth 10" />
+        <div>
+          <b>Insights:</b>
+          <ul class="bullets">
+            <li>Forces the tree to use individual A1–A10 items, revealing cooler combinations.</li>
+            <li>Expect more levels and non‑pure leaves</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </body>
   </html>
