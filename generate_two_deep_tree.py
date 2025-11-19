@@ -171,22 +171,25 @@ def main():
     plt.close()
     print(f"Wrote {out_path10}")
 
-    # Generate a deeper tree (depth=10) EXCLUDING 'result' to avoid a trivial single split
-    clf10_nr = DecisionTreeClassifier(
+    # Generate a deeper tree (depth=10) using ONLY A5 and A9 features
+    a5_col = a_only_cols[4]  # A5
+    a9_col = a_only_cols[8]  # A9
+    X_a59 = X_df_a_only[[a5_col, a9_col]].values
+    clf10_a59 = DecisionTreeClassifier(
         max_depth=10,
         criterion="entropy",
         class_weight=None,
         min_samples_leaf=5,
         random_state=42,
     )
-    clf10_nr.fit(X_a, y)
+    clf10_a59.fit(X_a59, y)
     out_path10_nr = os.path.join(figures_dir, "tree_depth10_noresult.png")
     fig = plt.figure(figsize=(14, 9), facecolor="white")
     ax = plt.gca()
     ax.set_facecolor("white")
     plot_tree(
-        clf10_nr,
-        feature_names=a_only_cols,
+        clf10_a59,
+        feature_names=[a5_col, a9_col],
         class_names=["No ASD", "ASD"],
         impurity=True,
         proportion=False,
@@ -195,7 +198,7 @@ def main():
         fontsize=7,
         max_depth=10,
     )
-    plt.title("Decision Tre Depth=10", pad=8)
+    plt.title("Decision Tree", pad=8)
     plt.tight_layout(rect=[0, 0, 1, 0.98])
     plt.savefig(out_path10_nr, dpi=150, bbox_inches="tight")
     plt.close()
